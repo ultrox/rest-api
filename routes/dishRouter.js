@@ -68,7 +68,8 @@ router.route('/:id/comments')
 
 			dish.save(function(err, result) {
 				console.log('saved', result);
-				res.json(dish.comments)
+				var lastComment = dish.comments[dish.comments.length - 1];
+				res.json(lastComment._id)
 			});
 		})
 	})
