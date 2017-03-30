@@ -2,9 +2,9 @@ var mongoose = require('mongoose');
 var Dishes = require('../models/dishes.js');
 
 var router = require('express').Router();
-// TODO: Made error with this syntax vs router.get()
-// TODO: Error while sending postman request json I used '' instead of ""
-// TODO: Greska sa postmanom jer nisam slao dobar request, (slao sam POST umjesto GET)
+// MISTAKE: Made error with this syntax vs router.get()
+// MISTAKE: Error while sending postman request json I used '' instead of ""
+// MISTAKE: Greska sa postmanom jer nisam slao dobar request, (slao sam POST umjesto GET)
 router.route('/')
 	.get(function(req, res) {
 		console.log('I got you back ')
@@ -13,16 +13,18 @@ router.route('/')
 		})
 	})
 	.post(function(req, res) {
-		// res.writeHead(200,{'Content-Type': 'text/json'});
 		console.log('hello from post dishes' + req.body.id);
-		//TODO redirekciju sam zeznuo kad sam pustio "/" i "dishes/" umjesto "/dishes/" Moras puni path napisati kad
-		//radis redirekciju
-		console.log(req.body);
+		//MISTAKE: redirekciju sam zeznuo kad sam pustio "/" i "dishes/" umjesto "/dishes/" Moras puni path napisati kad
 		Dishes.create(req.body, function(err, result) {
 			//posalji id od novog posta
 			if(err) throw err;
-			console.log(result)
 			res.redirect("/dishes/" + result.id)
+		})
+	}).delete(function(req, res) {
+		//MISTAKE: Zaboravio kako ide ova funkcija
+		Dishes.remove({}, function(err, result) {
+			if(err) throw err;
+			res.json({msg: "All posts deleted, thanks for flying with us!"});
 		})
 	})
 
@@ -32,6 +34,61 @@ router.route('/:id')
 			res.json(dish);
 		})
 	})
+	.delete(function(req, res) {
+		var id = req.params.id;
+		Dishes.findByIdAndRemove(id, function(err, dish) {
+			if(err) throw err;
+			dish.msg = "Deleted";
+			res.json(dish);
+		})
+	}).put(function(req, res) {
+		var id = req.params.id;
+		Dishes.findByIdAndUpdate(id, {$set: req.body}, {new: true}, function(err, dish) {
+			if(err) throw err;
+			res.json(dish);
+		});
+	})
 
+router.route('/:id/comments')
+	.get(function(req, res) {
+		var dishId = req.params.id;
+		Dishes.findById(dishId, function(err, dish) {
+			if(err) throw err;
+			//array of objects
+			res.json(dish.comments)
+		});
+	})
+	.post(function(req, res) {
+		//create new comment
+		var dishId = req.params.id;
+		Dishes.findById(dishId, function(err, dish) {
+			if(err) throw err;
+			var comment = req.body;
+			dish.comments.push(comment);
+
+			dish.save(function(err, result) {
+				console.log('saved', result);
+				res.json(dish.comments)
+			});
+		})
+	})
+	.delete(function(req, res) {
+		//delete all comments
+		var dishId = req.params.id;
+		Dishes.findById(dishId, function(err, dish) {
+			dish.comments = [];
+			dish.save();
+			res.json({msg: 'Deleted all comments'})
+		})
+	})
+
+router.route('/:id/comments/:cid')
+	.get(function(req, res) {
+		//get specific comment
+	})
+	.delete(function(req, res) {
+		//delete single comments
+		
+	})
 
 module.exports = router;
