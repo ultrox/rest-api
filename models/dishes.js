@@ -14,7 +14,7 @@ var disheSchema = new Schema({
 	category: {type: String, required: true},
 	image: {type: String},
 	comments: [commentsSchema]
-}, {timestamp: true});
-
+	// comments: []
+}, {timestamps: true});
 
 module.exports = mongoose.model('dish', disheSchema);

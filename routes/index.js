@@ -11,7 +11,7 @@ var url = "mongodb://localhost:27017/" + dbname;
 mongoose.connect(url);
 var db = mongoose.connection;
 db.on('error', function(err, stuff) {
-	if(err) throw new Error();
+	if(err) throw new Error('Do your db is running? ');
 
 });
 
